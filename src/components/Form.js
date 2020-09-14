@@ -1,182 +1,187 @@
-import React, { useState ,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import * as yup from "yup";
+import axios from "axios";
 
-function Form() {
-  const [orders, setOrders] = useState({
+export default function Form() {
+  const [post, setPost] = useState([]);
+  const [formState, setFormState] = useState({
     name: "",
-    sizs: "",
-    pinapple: "",
-    olive: "",
-    sausage: "",
-    mushroom: "",
-    onion: "",
     special: "",
+    positions: "",
+    pineapple: "",
+    mushroom:"",
+    onion:"",
+    olive:""
+
   });
+
+  //////////////////////////////////////////
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [errors, setErrors] = useState({
     name: "",
-    sizs: "",
-    pinapple: "",
-    olive: "",
-    sausage: "",
-    mushroom: "",
-    onion: "",
     special: "",
+    positions: "",
+    pineapple: "",
+    mushroom:"",
+    onion:"",
+    olive:""
   });
 
-  //   Validation
-  const formSchema = yup.object().shape({
-    name: yup.string().required("Name is required"),
-    size: yup.string().required(),
+  const fromSchema = yup.object().shape({
+    name: yup.string().required("Name is a required field"),
 
-    pinapple: yup.boolean().oneOf([true], "Please Choose a topping"),
-    olive: yup.boolean().oneOf([true], "Please Choose a topping"),
-    sausage: yup.boolean().oneOf([true], "Please Choose a topping"),
-    mushroom: yup.boolean().oneOf([true], "Please Choose a topping"),
-    onion: yup.boolean().oneOf([true], "Please Choose a topping"),
 
-    spcial: yup.string(),
+
+
+
+    pineapple: yup.boolean().oneOf([true]),
+    mushroom: yup.boolean().oneOf([true]),
+    onion: yup.boolean().oneOf([true]),
+    olive: yup.boolean().oneOf([true]),
+
+
+
+
+
+    positions: yup.string(),
+    special: yup.string().required("Anything special"),
   });
 
   const validateChange = (e) => {
     yup
-      .reach(formSchema, e.target.name)
+      .reach(fromSchema, e.target.name)
       .validate(e.target.value)
-      .the((valid) => {
+      .then((valid) => {
         setErrors({ ...errors, [e.target.name]: "" });
       })
-      .catch((err) => setErrors({ ...errors, [e.target.name]: err.errors[0] }));
+      .catch((err) => {
+        console.log("error!", err);
+        setErrors({ ...errors, [e.target.name]: err.errors[0] });
+      });
   };
-
+  console.log("error state", errors);
   useEffect(() => {
-    formSchema.isValid(orders).then((valid) => {
+    fromSchema.isValid(formState).then((valid) => {
+      console.log(valid);
       setIsButtonDisabled(!valid);
     });
-  }, [orders]);
+  }, [formState]);
 
-
-
-
-
-
-
+  ///////////////////////////////////////////
   const inputChange = (e) => {
+    console.log(e.target.value);
     e.persist();
-    validateChange(0);
-    setOrders({
-      ...orders,
+    const newFormData = {
+      ...formState,
       [e.target.name]:
         e.target.type === "checkbox" ? e.target.checked : e.target.value,
-    });
+    };
+    validateChange(e);
+    setFormState(newFormData);
   };
 
   const formSubmit = (e) => {
-    e.preventDefaulte();
+    e.preventDefault();
+    axios
+      .post("https://requres.in/api/users", formState)
+      .then((response) => {
+        setPost(response.data);
+        setFormState({
+          name: "",
+    special: "",
+    positions: "",
+    pineapple: "",
+    mushroom:"",
+    onion:"",
+    olive:""
+        });
+      })
+      .catch((err) => console.log(err.response));
   };
 
   return (
     <form onSubmit={formSubmit}>
-      <label htmlFor="nameInput">
+      <label htmlFor="name">
         Name:
+        <br />
         <input
+          id="name"
           type="text"
-          id="nameInput"
           name="name"
-          value={orders.name}
           onChange={inputChange}
+          value={formState.name}
         />
       </label>
       <br />
-      {/* Size */}
-      <label htmlFor="sizeInput">
-        Select Pizza Size :<br />
-        <select
-          id="sizeInput"
-          name="size"
-          value={orders.size}
-          onChange={inputChange}
-        >
-          <option></option>
+      {errors.name.length > 0 ? <p className="error">{errors.name}</p> : null}
+
+      <label htmlFor="positions">
+        Select a Pizza size :<br />
+        <select id="positions" name="positions" onChange={inputChange}>
+          <option />
           <option value="Small">Small</option>
           <option value="Medium">Medium</option>
+
           <option value="Large">Large</option>
+
           <option value="Extra Large">Extra Large</option>
         </select>
       </label>
       <br />
-
-      {/* Toppings */}
-      <label htmlFor="toppingP">
+      <label htmlFor="pineapple">
+       
         <input
           type="checkbox"
-          id="toppingP"
-          name="pinapple"
-          checked={orders.pinapple}
+          name="pineapple"
+          checked={formState.pineapple}
           onChange={inputChange}
         />
-        Pineapple :
+         Pineapple
       </label>
       <br />
-      <label htmlFor="oTopping">
-        <input
-          type="checkbox"
-          id="oTopping"
-          name="olive"
-          checked={orders.oliver}
-          onChange={inputChange}
-        />
-        Olive :
-      </label>
-      <br />
-      <label htmlFor="sTopping">
-        <input
-          type="checkbox"
-          id="sTopping"
-          name="sausage"
-          checked={orders.sausage}
-          onChange={inputChange}
-        />
-        Sausage :
-      </label>
-      <br />
-
-      <label htmlFor="mToppoing">
-        <input
-          type="checkbox"
-          id="mTopping"
-          name="mushroom"
-          checked={orders.mushroom}
-          onChange={inputChange}
-        />
-        Mushroom :
-      </label>
-      <br />
-
-      <label htmlFor="onTopping">
-        <input
-          type="checkbox"
-          id="onTopping"
-          name="onion"
-          checked={orders.onion}
-          onChange={inputChange}
-        />
-        Onion :
-      </label>
-      <br />
-      {/* special instructions */}
-      <label htmlFor="specialInputs">
+      <label htmlFor="mushroom">
+       
+       <input
+         type="checkbox"
+         name="mushroom"
+         checked={formState.mushroom}
+         onChange={inputChange}
+       />
+        Mushroom
+     </label>
+     <br />
+     <label htmlFor="onion">
+       
+       <input
+         type="checkbox"
+         name="onion"
+         checked={formState.nion}
+         onChange={inputChange}
+       />
+       Onion
+     </label>
+     <br />
+     <label htmlFor="olive">
+       
+       <input
+         type="checkbox"
+         name="olive"
+         checked={formState.olive}
+         onChange={inputChange}
+       />
+       Olive
+     </label>
+     <br />
+      <label htmlFor="specialInput">
         Special Instructions :<br />
-        <textarea
-          id="spicialInputs"
-          name="special"
-          value={orders.special}
-          onChange={inputChange}
-        />
+        <textarea id="specialInput" name="special" onChange={inputChange} />
       </label>
+      {errors.special.length > 0 ? <p className="error">{errors.special}</p> : null}
       <br />
-      <button type="submit">Order</button>
+
+      <button type="submit" disabled={isButtonDisabled}>
+        Submit
+      </button>
     </form>
   );
 }
-
-export default Form;
