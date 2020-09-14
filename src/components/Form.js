@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import * as yup from "yup";
-import axios from "axios";
 
-export default function Form() {
+
+export default function Form(props) {
   const [post, setPost] = useState([]);
   const [formState, setFormState] = useState({
     name: "",
@@ -82,21 +82,8 @@ export default function Form() {
 
   const formSubmit = (e) => {
     e.preventDefault();
-    axios
-      .post("https://requres.in/api/users", formState)
-      .then((response) => {
-        setPost(response.data);
-        setFormState({
-          name: "",
-    special: "",
-    positions: "",
-    pineapple: "",
-    mushroom:"",
-    onion:"",
-    olive:""
-        });
-      })
-      .catch((err) => console.log(err.response));
+    props.addNewNote(formState);
+  
   };
 
   return (
