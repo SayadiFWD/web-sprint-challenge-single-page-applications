@@ -5,6 +5,7 @@ import Pizza from "./components/Form";
 import Note from "./components/note";
 
 const App = () => {
+ 
   const [notes, setNotes] = useState([]);
 
   const addNewNote = (formData) => {
@@ -30,7 +31,7 @@ const App = () => {
         <Route exact path="/" component={Home} />
 
         <Route path="/pizza">
-          <Pizza />
+          <Pizza addNewNote={addNewNote}/>
         </Route>
         <Note notes={notes} />
       </div>
